@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import Button from 'jekoneng-web-ui/components/Button';
+import Button from '@/app/alternative-ui/Button';
 import Stack from '@mui/material/Stack';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';

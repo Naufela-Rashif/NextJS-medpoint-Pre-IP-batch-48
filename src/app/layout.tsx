@@ -4,7 +4,7 @@ import './globals.css';
 import { getLocale, getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { Nunito } from 'next/font/google';
-import ThemeProvider from 'jekoneng-web-ui/providers/ThemeProvider';
+import ThemeProvider from '@/app/alternative-ui/ThemeProvider';
 import { BookProvider } from '@/providers/BookProvider';
 import { Providers } from '@/lib/providers';
 import { MaterialProvider } from '@/lib/mui/provider';
