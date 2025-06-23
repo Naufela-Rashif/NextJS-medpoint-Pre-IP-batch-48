@@ -18,8 +18,10 @@ export async function loginAction(formData: FormData) {
 
   const { error } = await supabase.auth.signInWithPassword(data);
 
-  if (error) {
-    redirect('/error');
+  if (error?.code === 'invalid_credentials') {
+    return { error: 'Email dan password salah Periksa Kembali Email dan Password Anda' };
+  } else if (error) {
+    return { error: 'Terjadi kesalahan saat login, silakan coba lagi!' };
   }
 
   revalidatePath(APP_DASHBOARD, 'layout');
