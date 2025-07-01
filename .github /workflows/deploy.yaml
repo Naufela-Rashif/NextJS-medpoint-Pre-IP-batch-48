@@ -1,0 +1,48 @@
+name: Deploy to Vercel (prebuilt)
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v3
+        with: { node-version: "18", cache: "yarn" }
+
+      # 👉   Konfigurasi akses Gitea (berlaku di runner GitHub)
+      - name: Configure Gitea Git URL
+        run: git config --global url."https://${{ secrets.GITEA_TOKEN }}@gitea.sev-2.com".insteadOf ssh://gitea.sev-2.com
+
+      # Generate .env.production (atau env lokal lain)
+      - name: Generate env file
+        run: |
+          cat <<EOF > .env.production
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          EOF
+
+      # ⬇️ install dependency privat lancar karena token Gitea sudah di‑inject
+      - run: yarn install --frozen-lockfile
+
+      # ⬇️ gunakan Vercel CLI
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      # ⬇️ Tarik pengaturan project & env dari Vercel
+      - name: Vercel Pull (prod)
+        run: vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
+
+      # ⬇️ Build secara lokal di runner GitHub
+      - name: Vercel Build
+        run: vercel build --prod --token ${{ secrets.VERCEL_TOKEN }}
+
+      # ⬇️ Deploy artefak sudah‑build
+      - name: Vercel Deploy (prebuilt)
+        run: vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
