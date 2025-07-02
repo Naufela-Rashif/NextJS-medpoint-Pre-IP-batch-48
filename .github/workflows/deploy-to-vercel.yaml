@@ -23,10 +23,13 @@ jobs:
 
       - name: Generate env file
         run: |
-          cat <<EOF > .env.production
-          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          EOF
+          while IFS='=' read -r key value || [ -n "$key" ]; do
+            # Skip empty lines and comments
+            [[ -z "$key" || "$key" == \#* ]] && continue
+
+            # Pipe value to vercel env add
+            printf '%s' "$value" | vercel env add "$key" production --force --token=${{ secrets.VERCEL_TOKEN }}
+          done < <(echo "${{ secrets.DOTENV }}")
 
       - run: yarn install 
 
